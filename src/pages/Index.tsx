@@ -9,6 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
+import AuthModal from '@/components/AuthModal';
+import { api, type User } from '@/lib/api';
 
 interface UserData {
   gender: 'male' | 'female';
@@ -123,595 +125,544 @@ const FOOD_DATABASE: FoodItem[] = [
   { name: 'Абрикос', calories: 48, protein: 1.4, fats: 0.4, carbs: 11, category: 'Фрукты' },
   { name: 'Слива', calories: 46, protein: 0.7, fats: 0.3, carbs: 11, category: 'Фрукты' },
   { name: 'Манго', calories: 60, protein: 0.8, fats: 0.4, carbs: 15, category: 'Фрукты' },
-  { name: 'Ананас', calories: 50, protein: 0.5, fats: 0.1, carbs: 13, category: 'Фрукты' },
-  { name: 'Грейпфрут', calories: 42, protein: 0.8, fats: 0.1, carbs: 11, category: 'Фрукты' },
-  { name: 'Миндаль', calories: 579, protein: 21, fats: 50, carbs: 22, category: 'Орехи и семена' },
-  { name: 'Грецкий орех', calories: 654, protein: 15, fats: 65, carbs: 14, category: 'Орехи и семена' },
+  { name: 'Ананас', calories: 50, protein: 0.5, fats: 0.2, carbs: 13, category: 'Фрукты' },
+  { name: 'Грейпфрут', calories: 35, protein: 0.7, fats: 0.1, carbs: 9, category: 'Фрукты' },
+  { name: 'Миндаль', calories: 609, protein: 21, fats: 54, carbs: 13, category: 'Орехи и семена' },
+  { name: 'Грецкий орех', calories: 654, protein: 15, fats: 65, carbs: 7, category: 'Орехи и семена' },
   { name: 'Кешью', calories: 553, protein: 18, fats: 44, carbs: 30, category: 'Орехи и семена' },
   { name: 'Фундук', calories: 628, protein: 15, fats: 61, carbs: 17, category: 'Орехи и семена' },
   { name: 'Арахис', calories: 567, protein: 26, fats: 49, carbs: 16, category: 'Орехи и семена' },
-  { name: 'Семечки подсолнечника', calories: 584, protein: 21, fats: 53, carbs: 10, category: 'Орехи и семена' },
+  { name: 'Семена подсолнечника', calories: 584, protein: 21, fats: 52, carbs: 11, category: 'Орехи и семена' },
+  { name: 'Семена тыквы', calories: 559, protein: 30, fats: 49, carbs: 11, category: 'Орехи и семена' },
   { name: 'Семена чиа', calories: 486, protein: 17, fats: 31, carbs: 42, category: 'Орехи и семена' },
-  { name: 'Льняные семена', calories: 534, protein: 18, fats: 42, carbs: 29, category: 'Орехи и семена' },
-  { name: 'Чечевица', calories: 116, protein: 9, fats: 0.4, carbs: 20, category: 'Бобовые' },
-  { name: 'Нут', calories: 364, protein: 19, fats: 6, carbs: 61, category: 'Бобовые' },
-  { name: 'Фасоль красная', calories: 337, protein: 22, fats: 1.7, carbs: 61, category: 'Бобовые' },
-  { name: 'Фасоль белая', calories: 333, protein: 23, fats: 2, carbs: 60, category: 'Бобовые' },
-  { name: 'Горох', calories: 298, protein: 20, fats: 2, carbs: 53, category: 'Бобовые' },
-  { name: 'Соя', calories: 381, protein: 35, fats: 17, carbs: 17, category: 'Бобовые' },
   { name: 'Оливковое масло', calories: 884, protein: 0, fats: 100, carbs: 0, category: 'Масла и жиры' },
-  { name: 'Подсолнечное масло', calories: 899, protein: 0, fats: 100, carbs: 0, category: 'Масла и жиры' },
+  { name: 'Подсолнечное масло', calories: 884, protein: 0, fats: 100, carbs: 0, category: 'Масла и жиры' },
   { name: 'Сливочное масло', calories: 748, protein: 0.5, fats: 83, carbs: 0.8, category: 'Масла и жиры' },
   { name: 'Кокосовое масло', calories: 862, protein: 0, fats: 100, carbs: 0, category: 'Масла и жиры' },
-  { name: 'Мед', calories: 329, protein: 0.8, fats: 0, carbs: 82, category: 'Сладости' },
+  { name: 'Авокадо', calories: 160, protein: 2, fats: 15, carbs: 9, category: 'Овощи' },
+  { name: 'Темный шоколад 70%', calories: 546, protein: 6, fats: 31, carbs: 52, category: 'Сладости' },
+  { name: 'Молочный шоколад', calories: 535, protein: 8, fats: 30, carbs: 59, category: 'Сладости' },
+  { name: 'Мед', calories: 329, protein: 0.3, fats: 0, carbs: 82, category: 'Сладости' },
   { name: 'Сахар', calories: 387, protein: 0, fats: 0, carbs: 100, category: 'Сладости' },
-  { name: 'Темный шоколад 70%', calories: 546, protein: 6, fats: 35, carbs: 52, category: 'Сладости' },
-  { name: 'Молочный шоколад', calories: 535, protein: 7.6, fats: 30, carbs: 60, category: 'Сладости' },
-  { name: 'Зефир', calories: 326, protein: 0.8, fats: 0.1, carbs: 79, category: 'Сладости' },
-  { name: 'Мармелад', calories: 321, protein: 0, fats: 0.1, carbs: 79, category: 'Сладости' },
-  { name: 'Кофе черный', calories: 2, protein: 0.2, fats: 0, carbs: 0.3, category: 'Напитки' },
-  { name: 'Чай черный', calories: 1, protein: 0, fats: 0, carbs: 0.3, category: 'Напитки' },
-  { name: 'Апельсиновый сок', calories: 45, protein: 0.7, fats: 0.2, carbs: 10, category: 'Напитки' },
-  { name: 'Яблочный сок', calories: 46, protein: 0.1, fats: 0.1, carbs: 11, category: 'Напитки' },
-  { name: 'Кола', calories: 42, protein: 0, fats: 0, carbs: 10.6, category: 'Напитки' },
-];
-
-const ACTIVITY_LEVELS = [
-  { value: 1.2, label: 'Минимальная (сидячая работа)' },
-  { value: 1.375, label: 'Низкая (легкие упражнения 1-3 дня/неделя)' },
-  { value: 1.55, label: 'Средняя (умеренные упражнения 3-5 дней/неделя)' },
-  { value: 1.725, label: 'Высокая (интенсивные упражнения 6-7 дней/неделя)' },
-  { value: 1.9, label: 'Очень высокая (физическая работа + тренировки)' },
 ];
 
 export default function Index() {
+  const [user, setUser] = useState<User | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  
   const [userData, setUserData] = useState<UserData>({
     gender: 'male',
     age: 30,
     weight: 70,
     height: 170,
-    activity: 1.55,
+    activity: 1.375,
   });
 
-  const [dailyNorm, setDailyNorm] = useState<DailyNorm | null>(null);
-  const [mealEntries, setMealEntries] = useState<MealEntry[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [dailyNorm, setDailyNorm] = useState<DailyNorm>({
+    calories: 2000,
+    protein: 150,
+    fats: 67,
+    carbs: 200,
+  });
+
+  const [meals, setMeals] = useState<MealEntry[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
-  const [grams, setGrams] = useState('100');
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [grams, setGrams] = useState<string>('100');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
 
   useEffect(() => {
-    const saved = localStorage.getItem('kbzu-meals');
-    if (saved) {
-      setMealEntries(JSON.parse(saved));
-    }
+    checkAuthentication();
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem('kbzu-meals', JSON.stringify(mealEntries));
-  }, [mealEntries]);
-
-  const calculateBMR = () => {
-    const { gender, age, weight, height, activity } = userData;
-    
-    let bmr: number;
-    if (gender === 'male') {
-      bmr = 88.36 + (13.4 * weight) + (4.8 * height) - (5.7 * age);
+  const checkAuthentication = async () => {
+    if (api.isAuthenticated()) {
+      const currentUser = await api.getCurrentUser();
+      if (currentUser) {
+        setUser(currentUser);
+        await loadUserData();
+      } else {
+        setShowAuthModal(true);
+      }
     } else {
-      bmr = 447.6 + (9.2 * weight) + (3.1 * height) - (4.3 * age);
+      setShowAuthModal(true);
+    }
+    setIsLoading(false);
+  };
+
+  const loadUserData = async () => {
+    try {
+      const profile = await api.getProfile();
+      if (profile) {
+        setUserData({
+          gender: profile.gender,
+          age: profile.age,
+          weight: profile.weight,
+          height: profile.height,
+          activity: profile.activity,
+        });
+        if (profile.dailyNorm) {
+          setDailyNorm(profile.dailyNorm);
+        } else {
+          calculateNorms({
+            gender: profile.gender,
+            age: profile.age,
+            weight: profile.weight,
+            height: profile.height,
+            activity: profile.activity,
+          });
+        }
+      }
+
+      const mealsData = await api.getMeals();
+      setMeals(mealsData);
+    } catch (error) {
+      console.error('Error loading user data:', error);
+      toast.error('Ошибка загрузки данных');
+    }
+  };
+
+  const handleAuthSuccess = async () => {
+    const currentUser = await api.getCurrentUser();
+    if (currentUser) {
+      setUser(currentUser);
+      await loadUserData();
+      toast.success(`Добро пожаловать, ${currentUser.name}!`);
+    }
+  };
+
+  const handleLogout = () => {
+    api.logout();
+    setUser(null);
+    setMeals([]);
+    setShowAuthModal(true);
+    toast.success('Вы вышли из системы');
+  };
+
+  const calculateNorms = (data: UserData) => {
+    let bmr: number;
+    if (data.gender === 'male') {
+      bmr = 88.36 + 13.4 * data.weight + 4.8 * data.height - 5.7 * data.age;
+    } else {
+      bmr = 447.6 + 9.2 * data.weight + 3.1 * data.height - 4.3 * data.age;
     }
 
-    const calories = Math.round(bmr * activity);
-    const protein = Math.round(weight * 1.8);
-    const fats = Math.round(weight * 1);
-    const carbs = Math.round((calories - (protein * 4) - (fats * 9)) / 4);
+    const calories = Math.round(bmr * data.activity);
+    const protein = Math.round(data.weight * 2);
+    const fats = Math.round((calories * 0.3) / 9);
+    const carbs = Math.round((calories - protein * 4 - fats * 9) / 4);
 
-    setDailyNorm({ calories, protein, fats, carbs });
-    toast.success('Норма КБЖУ рассчитана!');
+    const newNorm = { calories, protein, fats, carbs };
+    setDailyNorm(newNorm);
+    return newNorm;
   };
 
-  const addMealEntry = () => {
-    if (!selectedFood) return;
+  const handleSaveProfile = async () => {
+    const newNorm = calculateNorms(userData);
+    
+    const success = await api.saveProfile({
+      ...userData,
+      dailyNorm: newNorm,
+    });
 
-    const multiplier = parseFloat(grams) / 100;
-    const entry: MealEntry = {
-      id: Date.now().toString(),
-      food: {
-        ...selectedFood,
-        calories: Math.round(selectedFood.calories * multiplier),
-        protein: Math.round(selectedFood.protein * multiplier * 10) / 10,
-        fats: Math.round(selectedFood.fats * multiplier * 10) / 10,
-        carbs: Math.round(selectedFood.carbs * multiplier * 10) / 10,
-      },
-      grams: parseFloat(grams),
-      date: selectedDate,
-      time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
-    };
-
-    setMealEntries([entry, ...mealEntries]);
-    setSelectedFood(null);
-    setGrams('100');
-    setSearchQuery('');
-    toast.success(`Добавлено: ${entry.food.name}`);
+    if (success) {
+      toast.success('Профиль сохранен!');
+    } else {
+      toast.error('Ошибка сохранения профиля');
+    }
   };
 
-  const deleteEntry = (id: string) => {
-    setMealEntries(mealEntries.filter(e => e.id !== id));
-    toast.success('Запись удалена');
-  };
+  const categories = ['all', ...Array.from(new Set(FOOD_DATABASE.map(food => food.category)))];
 
-  const todayEntries = mealEntries.filter(e => e.date === selectedDate);
-  const todayTotals = todayEntries.reduce(
-    (acc, entry) => ({
-      calories: acc.calories + entry.food.calories,
-      protein: acc.protein + entry.food.protein,
-      fats: acc.fats + entry.food.fats,
-      carbs: acc.carbs + entry.food.carbs,
-    }),
-    { calories: 0, protein: 0, fats: 0, carbs: 0 }
-  );
-
-  const categories = ['all', ...Array.from(new Set(FOOD_DATABASE.map(f => f.category)))];
   const filteredFoods = FOOD_DATABASE.filter(food => {
-    const matchesSearch = food.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = food.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || food.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
+  const addMeal = async () => {
+    if (!selectedFood) return;
+
+    const gramsNum = parseInt(grams);
+    if (isNaN(gramsNum) || gramsNum <= 0) {
+      toast.error('Введите корректный вес');
+      return;
+    }
+
+    const now = new Date();
+    const mealData = {
+      food: selectedFood,
+      grams: gramsNum,
+      date: selectedDate,
+      time: now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
+    };
+
+    const mealId = await api.addMeal(mealData);
+    if (mealId) {
+      setMeals([...meals, { ...mealData, id: mealId }]);
+      toast.success(`Добавлено: ${selectedFood.name} (${gramsNum}г)`);
+      setSelectedFood(null);
+      setGrams('100');
+      setSearchTerm('');
+    } else {
+      toast.error('Ошибка добавления приема пищи');
+    }
+  };
+
+  const deleteMeal = async (id: string) => {
+    const success = await api.deleteMeal(id);
+    if (success) {
+      setMeals(meals.filter(meal => meal.id !== id));
+      toast.success('Прием пищи удален');
+    } else {
+      toast.error('Ошибка удаления');
+    }
+  };
+
+  const todayMeals = meals.filter(meal => meal.date === selectedDate);
+
+  const totalConsumed = todayMeals.reduce(
+    (acc, meal) => {
+      const multiplier = meal.grams / 100;
+      return {
+        calories: acc.calories + meal.food.calories * multiplier,
+        protein: acc.protein + meal.food.protein * multiplier,
+        fats: acc.fats + meal.food.fats * multiplier,
+        carbs: acc.carbs + meal.food.carbs * multiplier,
+      };
+    },
+    { calories: 0, protein: 0, fats: 0, carbs: 0 }
+  );
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Icon name="Loader" className="animate-spin h-12 w-12 mx-auto mb-4" />
+          <p className="text-lg">Загрузка...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Трекер КБЖУ</h1>
-          <p className="text-gray-600">Рассчитай норму и отслеживай питание</p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 p-4">
+      <AuthModal 
+        open={showAuthModal} 
+        onClose={() => {}} 
+        onSuccess={handleAuthSuccess}
+      />
+
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="bg-gradient-to-br from-green-400 to-blue-500 p-3 rounded-xl shadow-lg">
+              <Icon name="Apple" size={32} className="text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800">Калькулятор калорий</h1>
+              <p className="text-gray-600">Контролируйте питание и достигайте целей</p>
+            </div>
+          </div>
+          {user && (
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-gray-600">Привет, {user.name}!</span>
+              <Button variant="outline" size="sm" onClick={handleLogout}>
+                <Icon name="LogOut" size={16} className="mr-2" />
+                Выйти
+              </Button>
+            </div>
+          )}
         </div>
 
-        <Tabs defaultValue="calculator" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 max-w-md mx-auto">
-            <TabsTrigger value="calculator">
-              <Icon name="Calculator" size={18} className="mr-2" />
-              Калькулятор
-            </TabsTrigger>
-            <TabsTrigger value="diary">
-              <Icon name="BookOpen" size={18} className="mr-2" />
-              Дневник
-            </TabsTrigger>
-            <TabsTrigger value="history">
-              <Icon name="History" size={18} className="mr-2" />
-              История
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="calculator" className="space-y-6">
-            <Card className="shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Icon name="User" size={24} />
-                  Расчет суточной нормы КБЖУ
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label>Пол</Label>
-                    <Select value={userData.gender} onValueChange={(v) => setUserData({ ...userData, gender: v as 'male' | 'female' })}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="male">Мужской</SelectItem>
-                        <SelectItem value="female">Женский</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Возраст (лет)</Label>
-                    <Input
-                      type="number"
-                      value={userData.age}
-                      onChange={(e) => setUserData({ ...userData, age: parseFloat(e.target.value) })}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Вес (кг)</Label>
-                    <Input
-                      type="number"
-                      value={userData.weight}
-                      onChange={(e) => setUserData({ ...userData, weight: parseFloat(e.target.value) })}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Рост (см)</Label>
-                    <Input
-                      type="number"
-                      value={userData.height}
-                      onChange={(e) => setUserData({ ...userData, height: parseFloat(e.target.value) })}
-                    />
-                  </div>
-                </div>
-
+        <div className="grid md:grid-cols-2 gap-6">
+          <Card className="shadow-lg border-0">
+            <CardHeader className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+              <CardTitle className="flex items-center gap-2">
+                <Icon name="User" size={24} />
+                Личные данные
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Уровень активности</Label>
-                  <Select value={userData.activity.toString()} onValueChange={(v) => setUserData({ ...userData, activity: parseFloat(v) })}>
+                  <Label>Пол</Label>
+                  <Select value={userData.gender} onValueChange={(value: 'male' | 'female') => setUserData({ ...userData, gender: value })}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {ACTIVITY_LEVELS.map(level => (
-                        <SelectItem key={level.value} value={level.value.toString()}>
-                          {level.label}
-                        </SelectItem>
+                      <SelectItem value="male">Мужской</SelectItem>
+                      <SelectItem value="female">Женский</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Возраст (лет)</Label>
+                  <Input type="number" value={userData.age} onChange={(e) => setUserData({ ...userData, age: parseInt(e.target.value) || 0 })} />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Вес (кг)</Label>
+                  <Input type="number" value={userData.weight} onChange={(e) => setUserData({ ...userData, weight: parseInt(e.target.value) || 0 })} />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Рост (см)</Label>
+                  <Input type="number" value={userData.height} onChange={(e) => setUserData({ ...userData, height: parseInt(e.target.value) || 0 })} />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Уровень активности</Label>
+                <Select value={userData.activity.toString()} onValueChange={(value) => setUserData({ ...userData, activity: parseFloat(value) })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1.2">Минимальная (сидячий образ жизни)</SelectItem>
+                    <SelectItem value="1.375">Низкая (1-3 раза в неделю)</SelectItem>
+                    <SelectItem value="1.55">Средняя (3-5 раз в неделю)</SelectItem>
+                    <SelectItem value="1.725">Высокая (6-7 раз в неделю)</SelectItem>
+                    <SelectItem value="1.9">Очень высокая (2 раза в день)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <Button onClick={handleSaveProfile} className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700">
+                <Icon name="Save" size={18} className="mr-2" />
+                Рассчитать и сохранить
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-lg border-0">
+            <CardHeader className="bg-gradient-to-r from-green-500 to-green-600 text-white">
+              <CardTitle className="flex items-center gap-2">
+                <Icon name="Target" size={24} />
+                Дневная норма
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="space-y-6">
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className="font-semibold text-gray-700">Калории</span>
+                    <span className="text-sm">
+                      <span className="font-bold text-lg">{Math.round(totalConsumed.calories)}</span>
+                      <span className="text-gray-500"> / {dailyNorm.calories} ккал</span>
+                    </span>
+                  </div>
+                  <Progress value={(totalConsumed.calories / dailyNorm.calories) * 100} className="h-3" />
+                </div>
+
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <div className="text-center">
+                      <Icon name="Beef" className="mx-auto mb-1 text-red-500" size={24} />
+                      <p className="text-xs text-gray-600">Белки</p>
+                      <p className="font-bold">{Math.round(totalConsumed.protein)}г</p>
+                      <p className="text-xs text-gray-500">из {dailyNorm.protein}г</p>
+                    </div>
+                    <Progress value={(totalConsumed.protein / dailyNorm.protein) * 100} className="h-2" />
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="text-center">
+                      <Icon name="Droplet" className="mx-auto mb-1 text-yellow-500" size={24} />
+                      <p className="text-xs text-gray-600">Жиры</p>
+                      <p className="font-bold">{Math.round(totalConsumed.fats)}г</p>
+                      <p className="text-xs text-gray-500">из {dailyNorm.fats}г</p>
+                    </div>
+                    <Progress value={(totalConsumed.fats / dailyNorm.fats) * 100} className="h-2" />
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="text-center">
+                      <Icon name="Wheat" className="mx-auto mb-1 text-orange-500" size={24} />
+                      <p className="text-xs text-gray-600">Углеводы</p>
+                      <p className="font-bold">{Math.round(totalConsumed.carbs)}г</p>
+                      <p className="text-xs text-gray-500">из {dailyNorm.carbs}г</p>
+                    </div>
+                    <Progress value={(totalConsumed.carbs / dailyNorm.carbs) * 100} className="h-2" />
+                  </div>
+                </div>
+
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  <p className="text-sm text-gray-700">
+                    <span className="font-semibold">Остаток:</span> {Math.max(0, Math.round(dailyNorm.calories - totalConsumed.calories))} ккал
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card className="shadow-lg border-0">
+          <CardHeader className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+            <CardTitle className="flex items-center gap-2">
+              <Icon name="UtensilsCrossed" size={24} />
+              Дневник питания
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <Tabs defaultValue="add" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-6">
+                <TabsTrigger value="add" className="flex items-center gap-2">
+                  <Icon name="Plus" size={18} />
+                  Добавить прием пищи
+                </TabsTrigger>
+                <TabsTrigger value="history" className="flex items-center gap-2">
+                  <Icon name="History" size={18} />
+                  История
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="add" className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Дата</Label>
+                  <Input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Категория продуктов</Label>
+                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Все категории</SelectItem>
+                      {categories.slice(1).map(cat => (
+                        <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
 
-                <Button onClick={calculateBMR} className="w-full" size="lg">
-                  <Icon name="Sparkles" size={20} className="mr-2" />
-                  Рассчитать норму
-                </Button>
-
-                {dailyNorm && (
-                  <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-green-50 rounded-lg border-2 border-blue-200">
-                    <h3 className="text-xl font-semibold mb-4 text-center">Ваша суточная норма</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      <div className="text-center">
-                        <div className="text-4xl font-bold text-blue-600">{dailyNorm.calories}</div>
-                        <div className="text-sm text-gray-600 mt-1">Калории</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-4xl font-bold text-green-600">{dailyNorm.protein}</div>
-                        <div className="text-sm text-gray-600 mt-1">Белки (г)</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-4xl font-bold text-orange-600">{dailyNorm.fats}</div>
-                        <div className="text-sm text-gray-600 mt-1">Жиры (г)</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-4xl font-bold text-purple-600">{dailyNorm.carbs}</div>
-                        <div className="text-sm text-gray-600 mt-1">Углеводы (г)</div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="diary" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="shadow-lg">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Icon name="Plus" size={24} />
-                    Добавить продукт
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Дата</Label>
-                    <Input
-                      type="date"
-                      value={selectedDate}
-                      onChange={(e) => setSelectedDate(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Категория</Label>
-                    <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">Все категории</SelectItem>
-                        {categories.filter(c => c !== 'all').map(cat => (
-                          <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Поиск продукта</Label>
-                    <Input
+                <div className="space-y-2">
+                  <Label>Поиск продукта</Label>
+                  <div className="relative">
+                    <Icon name="Search" className="absolute left-3 top-3 text-gray-400" size={18} />
+                    <Input 
                       placeholder="Начните вводить название..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10"
                     />
                   </div>
+                </div>
 
-                  <ScrollArea className="h-64 border rounded-lg p-2">
-                    <div className="space-y-1">
-                      {filteredFoods.map((food) => (
-                        <button
-                          key={food.name}
-                          onClick={() => setSelectedFood(food)}
-                          className={`w-full text-left p-3 rounded-lg transition-colors ${
-                            selectedFood?.name === food.name
-                              ? 'bg-blue-100 border-2 border-blue-500'
-                              : 'hover:bg-gray-100 border border-gray-200'
-                          }`}
-                        >
-                          <div className="font-medium">{food.name}</div>
-                          <div className="text-xs text-gray-600 mt-1">
-                            К: {food.calories} | Б: {food.protein}г | Ж: {food.fats}г | У: {food.carbs}г
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </ScrollArea>
-
-                  {selectedFood && (
-                    <div className="space-y-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                      <div>
-                        <div className="font-semibold text-lg">{selectedFood.name}</div>
-                        <div className="text-sm text-gray-600">{selectedFood.category}</div>
+                {searchTerm && (
+                  <ScrollArea className="h-48 border rounded-lg p-2">
+                    {filteredFoods.map((food, idx) => (
+                      <div 
+                        key={idx}
+                        onClick={() => {
+                          setSelectedFood(food);
+                          setSearchTerm(food.name);
+                        }}
+                        className={`p-3 rounded cursor-pointer transition-colors ${
+                          selectedFood?.name === food.name ? 'bg-blue-100 border border-blue-300' : 'hover:bg-gray-100'
+                        }`}
+                      >
+                        <p className="font-semibold">{food.name}</p>
+                        <p className="text-xs text-gray-500">{food.category}</p>
+                        <p className="text-xs text-gray-600">
+                          {food.calories} ккал | Б: {food.protein}г Ж: {food.fats}г У: {food.carbs}г
+                        </p>
                       </div>
-                      
-                      <div className="space-y-2">
-                        <Label>Количество (грамм)</Label>
+                    ))}
+                  </ScrollArea>
+                )}
+
+                {selectedFood && (
+                  <div className="bg-green-50 p-4 rounded-lg border border-green-200 space-y-3">
+                    <h3 className="font-semibold text-lg">{selectedFood.name}</h3>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div>
+                        <Label htmlFor="grams">Вес (грамм)</Label>
                         <Input
+                          id="grams"
                           type="number"
                           value={grams}
                           onChange={(e) => setGrams(e.target.value)}
-                          placeholder="100"
+                          className="mt-1"
                         />
                       </div>
-
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div className="p-2 bg-white rounded">
-                          <div className="text-gray-600">Калории</div>
-                          <div className="font-bold text-blue-600">
-                            {Math.round(selectedFood.calories * (parseFloat(grams) / 100))}
-                          </div>
-                        </div>
-                        <div className="p-2 bg-white rounded">
-                          <div className="text-gray-600">Белки</div>
-                          <div className="font-bold text-green-600">
-                            {Math.round(selectedFood.protein * (parseFloat(grams) / 100) * 10) / 10}г
-                          </div>
-                        </div>
-                        <div className="p-2 bg-white rounded">
-                          <div className="text-gray-600">Жиры</div>
-                          <div className="font-bold text-orange-600">
-                            {Math.round(selectedFood.fats * (parseFloat(grams) / 100) * 10) / 10}г
-                          </div>
-                        </div>
-                        <div className="p-2 bg-white rounded">
-                          <div className="text-gray-600">Углеводы</div>
-                          <div className="font-bold text-purple-600">
-                            {Math.round(selectedFood.carbs * (parseFloat(grams) / 100) * 10) / 10}г
-                          </div>
+                      <div className="flex items-end">
+                        <div className="w-full">
+                          <p className="text-xs text-gray-600">На {grams}г:</p>
+                          <p className="font-bold">{Math.round(selectedFood.calories * (parseInt(grams) || 0) / 100)} ккал</p>
                         </div>
                       </div>
-
-                      <Button onClick={addMealEntry} className="w-full">
-                        <Icon name="Check" size={18} className="mr-2" />
-                        Добавить в дневник
-                      </Button>
                     </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card className="shadow-lg">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Icon name="TrendingUp" size={24} />
-                    Прогресс за {new Date(selectedDate).toLocaleDateString('ru-RU')}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {dailyNorm ? (
-                    <>
-                      <div className="space-y-4">
-                        <div>
-                          <div className="flex justify-between mb-2">
-                            <span className="text-sm font-medium">Калории</span>
-                            <span className="text-sm font-bold">
-                              {todayTotals.calories} / {dailyNorm.calories}
-                            </span>
-                          </div>
-                          <Progress 
-                            value={(todayTotals.calories / dailyNorm.calories) * 100} 
-                            className="h-4"
-                          />
-                        </div>
-
-                        <div>
-                          <div className="flex justify-between mb-2">
-                            <span className="text-sm font-medium">Белки (г)</span>
-                            <span className="text-sm font-bold">
-                              {Math.round(todayTotals.protein * 10) / 10} / {dailyNorm.protein}
-                            </span>
-                          </div>
-                          <Progress 
-                            value={(todayTotals.protein / dailyNorm.protein) * 100} 
-                            className="h-4"
-                          />
-                        </div>
-
-                        <div>
-                          <div className="flex justify-between mb-2">
-                            <span className="text-sm font-medium">Жиры (г)</span>
-                            <span className="text-sm font-bold">
-                              {Math.round(todayTotals.fats * 10) / 10} / {dailyNorm.fats}
-                            </span>
-                          </div>
-                          <Progress 
-                            value={(todayTotals.fats / dailyNorm.fats) * 100} 
-                            className="h-4"
-                          />
-                        </div>
-
-                        <div>
-                          <div className="flex justify-between mb-2">
-                            <span className="text-sm font-medium">Углеводы (г)</span>
-                            <span className="text-sm font-bold">
-                              {Math.round(todayTotals.carbs * 10) / 10} / {dailyNorm.carbs}
-                            </span>
-                          </div>
-                          <Progress 
-                            value={(todayTotals.carbs / dailyNorm.carbs) * 100} 
-                            className="h-4"
-                          />
-                        </div>
+                    <div className="grid grid-cols-3 gap-2 text-xs">
+                      <div>
+                        <span className="text-gray-600">Белки:</span>
+                        <span className="font-semibold ml-1">{((selectedFood.protein * (parseInt(grams) || 0)) / 100).toFixed(1)}г</span>
                       </div>
-
-                      <div className="pt-4 border-t">
-                        <h4 className="font-semibold mb-3">Съедено сегодня</h4>
-                        <ScrollArea className="h-64">
-                          <div className="space-y-2">
-                            {todayEntries.length === 0 ? (
-                              <p className="text-sm text-gray-500 text-center py-8">
-                                Записей пока нет
-                              </p>
-                            ) : (
-                              todayEntries.map((entry) => (
-                                <div
-                                  key={entry.id}
-                                  className="p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors"
-                                >
-                                  <div className="flex justify-between items-start">
-                                    <div className="flex-1">
-                                      <div className="font-medium">{entry.food.name}</div>
-                                      <div className="text-xs text-gray-600 mt-1">
-                                        {entry.grams}г • {entry.time}
-                                      </div>
-                                      <div className="text-xs text-gray-700 mt-1">
-                                        {entry.food.calories} ккал | Б: {entry.food.protein}г | Ж: {entry.food.fats}г | У: {entry.food.carbs}г
-                                      </div>
-                                    </div>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() => deleteEntry(entry.id)}
-                                      className="ml-2"
-                                    >
-                                      <Icon name="Trash2" size={16} className="text-red-500" />
-                                    </Button>
-                                  </div>
-                                </div>
-                              ))
-                            )}
-                          </div>
-                        </ScrollArea>
+                      <div>
+                        <span className="text-gray-600">Жиры:</span>
+                        <span className="font-semibold ml-1">{((selectedFood.fats * (parseInt(grams) || 0)) / 100).toFixed(1)}г</span>
                       </div>
-                    </>
-                  ) : (
-                    <div className="text-center py-12">
-                      <Icon name="Calculator" size={48} className="mx-auto text-gray-300 mb-4" />
-                      <p className="text-gray-600">
-                        Сначала рассчитайте вашу суточную норму в калькуляторе
-                      </p>
+                      <div>
+                        <span className="text-gray-600">Углеводы:</span>
+                        <span className="font-semibold ml-1">{((selectedFood.carbs * (parseInt(grams) || 0)) / 100).toFixed(1)}г</span>
+                      </div>
                     </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
+                    <Button onClick={addMeal} className="w-full bg-green-500 hover:bg-green-600">
+                      <Icon name="Plus" size={18} className="mr-2" />
+                      Добавить в дневник
+                    </Button>
+                  </div>
+                )}
+              </TabsContent>
 
-          <TabsContent value="history" className="space-y-6">
-            <Card className="shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Icon name="Calendar" size={24} />
-                  История записей
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ScrollArea className="h-[600px]">
-                  {mealEntries.length === 0 ? (
-                    <div className="text-center py-12">
-                      <Icon name="BookOpen" size={48} className="mx-auto text-gray-300 mb-4" />
-                      <p className="text-gray-600">История пуста</p>
+              <TabsContent value="history">
+                <ScrollArea className="h-96">
+                  {todayMeals.length === 0 ? (
+                    <div className="text-center py-12 text-gray-500">
+                      <Icon name="Salad" size={48} className="mx-auto mb-4 opacity-50" />
+                      <p>Нет записей за выбранную дату</p>
                     </div>
                   ) : (
-                    <div className="space-y-6">
-                      {Array.from(new Set(mealEntries.map(e => e.date)))
-                        .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
-                        .map(date => {
-                          const dateEntries = mealEntries.filter(e => e.date === date);
-                          const dateTotals = dateEntries.reduce(
-                            (acc, entry) => ({
-                              calories: acc.calories + entry.food.calories,
-                              protein: acc.protein + entry.food.protein,
-                              fats: acc.fats + entry.food.fats,
-                              carbs: acc.carbs + entry.food.carbs,
-                            }),
-                            { calories: 0, protein: 0, fats: 0, carbs: 0 }
-                          );
-
-                          return (
-                            <div key={date} className="border rounded-lg p-4 bg-white">
-                              <div className="flex justify-between items-center mb-4">
-                                <h3 className="font-semibold text-lg">
-                                  {new Date(date).toLocaleDateString('ru-RU', { 
-                                    weekday: 'long', 
-                                    year: 'numeric', 
-                                    month: 'long', 
-                                    day: 'numeric' 
-                                  })}
-                                </h3>
-                                <div className="text-sm font-medium text-gray-600">
-                                  {dateEntries.length} записей
-                                </div>
-                              </div>
-
-                              <div className="grid grid-cols-4 gap-3 mb-4 p-3 bg-gray-50 rounded-lg">
-                                <div className="text-center">
-                                  <div className="text-xs text-gray-600 mb-1">Калории</div>
-                                  <div className="font-bold text-blue-600">{dateTotals.calories}</div>
-                                </div>
-                                <div className="text-center">
-                                  <div className="text-xs text-gray-600 mb-1">Белки</div>
-                                  <div className="font-bold text-green-600">{Math.round(dateTotals.protein * 10) / 10}г</div>
-                                </div>
-                                <div className="text-center">
-                                  <div className="text-xs text-gray-600 mb-1">Жиры</div>
-                                  <div className="font-bold text-orange-600">{Math.round(dateTotals.fats * 10) / 10}г</div>
-                                </div>
-                                <div className="text-center">
-                                  <div className="text-xs text-gray-600 mb-1">Углеводы</div>
-                                  <div className="font-bold text-purple-600">{Math.round(dateTotals.carbs * 10) / 10}г</div>
-                                </div>
-                              </div>
-
-                              <div className="space-y-2">
-                                {dateEntries.map(entry => (
-                                  <div
-                                    key={entry.id}
-                                    className="p-3 bg-gray-50 rounded-lg border border-gray-200 text-sm"
-                                  >
-                                    <div className="flex justify-between items-start">
-                                      <div>
-                                        <div className="font-medium">{entry.food.name}</div>
-                                        <div className="text-xs text-gray-600 mt-1">
-                                          {entry.grams}г • {entry.time}
-                                        </div>
-                                        <div className="text-xs text-gray-700 mt-1">
-                                          {entry.food.calories} ккал | Б: {entry.food.protein}г | Ж: {entry.food.fats}г | У: {entry.food.carbs}г
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
+                    <div className="space-y-3">
+                      {todayMeals.map((meal) => (
+                        <div key={meal.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Icon name="Clock" size={14} className="text-gray-400" />
+                              <span className="text-sm text-gray-500">{meal.time}</span>
                             </div>
-                          );
-                        })}
+                            <p className="font-semibold">{meal.food.name}</p>
+                            <p className="text-sm text-gray-600">{meal.grams}г</p>
+                            <div className="flex gap-4 mt-1 text-xs text-gray-500">
+                              <span>{Math.round((meal.food.calories * meal.grams) / 100)} ккал</span>
+                              <span>Б: {Math.round((meal.food.protein * meal.grams) / 100)}г</span>
+                              <span>Ж: {Math.round((meal.food.fats * meal.grams) / 100)}г</span>
+                              <span>У: {Math.round((meal.food.carbs * meal.grams) / 100)}г</span>
+                            </div>
+                          </div>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => deleteMeal(meal.id)}
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Icon name="Trash2" size={18} />
+                          </Button>
+                        </div>
+                      ))}
                     </div>
                   )}
                 </ScrollArea>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

@@ -1,0 +1,30 @@
+{
+  "tests": [
+    {
+      "name": "Get user profile",
+      "method": "GET",
+      "path": "/?path=profile",
+      "headers": {
+        "X-Auth-Token": "1:test@example.com:9999999999:dummysignature"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "profile": null
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get user meals",
+      "method": "GET",
+      "path": "/?path=meals",
+      "headers": {
+        "X-Auth-Token": "1:test@example.com:9999999999:dummysignature"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "meals": []
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
